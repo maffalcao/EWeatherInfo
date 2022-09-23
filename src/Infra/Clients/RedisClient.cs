@@ -13,14 +13,14 @@ namespace Infra.Clients
         {
             _database = redis.GetDatabase();
         }
-        public async Task<T> GetData<T>(string key) where T : class
+        public async Task<T> GetDataAsync<T>(string key) where T : class
         {
             return JsonConvert.DeserializeObject<T>(
                 await _database.StringGetAsync(key)
             );
         }
 
-        public async void SetData<T>(string key, T content) where T : class
+        public async Task SetDataAsync<T>(string key, T content) where T : class
         {
             await _database.StringSetAsync(
                 key,
