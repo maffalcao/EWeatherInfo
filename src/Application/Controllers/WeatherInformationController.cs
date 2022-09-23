@@ -13,11 +13,11 @@ namespace Application.Controllers
     {
         private readonly ILogger<WeatherInformationController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherInformationController> logger)
+        public WeatherInformationController(ILogger<WeatherInformationController> logger)
         {
-            
+
         }
 
-        
+
     }
 }

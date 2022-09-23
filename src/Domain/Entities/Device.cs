@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Domain.Entities
 {
     public class Device
@@ -11,18 +14,19 @@ namespace Domain.Entities
             SensorTypes = new List<SensorType>();
         }
 
-        public void AddSensorType(string sensorTypeName) {
+        public void AddSensorType(string sensorTypeName)
+        {
 
             if (!SensorTypes.Any(s => s.Name.Equals(sensorTypeName)))
-            {			
+            {
                 SensorTypes.Add(new SensorType(sensorTypeName));
             }
-                
+
         }
-        
+
         public bool HasSensorType(string sensorTypeName) => SensorTypes.Any(_ => _.Name.Equals(sensorTypeName));
-        
-        public SensorType GetSensorType(string sensorTypeName) => SensorTypes.SingleOrDefault(_ => _.Name.Equals(sensorTypeName));        
-        
+
+        public SensorType GetSensorType(string sensorTypeName) => SensorTypes.SingleOrDefault(_ => _.Name.Equals(sensorTypeName));
+
     }
 }
