@@ -15,8 +15,9 @@ namespace Infra.Clients
         }
         public async Task<T> GetDataAsync<T>(string key) where T : class
         {
+            var value = await _database.StringGetAsync(key);
             return JsonConvert.DeserializeObject<T>(
-                await _database.StringGetAsync(key)
+                value.ToString() ?? string.Empty
             );
         }
 

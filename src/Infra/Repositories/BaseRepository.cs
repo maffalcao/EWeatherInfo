@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Domain.Entities;
-using Domain.Interfaces;
 using Infra.Interfaces;
 
 namespace Infra.Repositories
@@ -24,13 +21,13 @@ namespace Infra.Repositories
             _redis = redis;
             _io = io;
             _urlBase = "https://sigmaiotexercisetest.blob.core.windows.net/iotbackend";
-            _folderBase = $"{Path.GetTempPath()}/iotbackend";
+            _folderBase = @$"{Path.GetTempPath()}iotbackend";
 
         }
 
-        public abstract IList<T> GetDataFromCsvFile();
+        protected abstract IList<T> GetDataFromFile();
 
-        public abstract IList<T> GetDataFromUrlCsvFile();
+        protected abstract Task<IList<T>> GetDataFromUrlAsync();
 
     }
 }

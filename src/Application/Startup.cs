@@ -11,6 +11,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
+using Infra.Interfaces;
+using Infra.Clients;
+using Infra.Helpers;
+using Infra.Repositories;
+using Domain.Interfaces;
+using Domain.Services;
 
 namespace Application
 {
@@ -28,6 +35,17 @@ namespace Application
         {
 
             services.AddControllers();
+
+            services.AddScoped<IMeasurementRepository, MeasurementRepository>();
+            services.AddScoped<IDeviceRepository, DeviceRepository>();
+            services.AddScoped<IMeasurementService, MeasurementService>();
+            services.AddScoped<IIO, IO>();
+            services.AddScoped<IRedisClient, RedisClient>();
+
+            ConnectionMultiplexer cm = ConnectionMultiplexer.Connect(Configuration.GetValue<string>("CacheSettings:ConnectionString"));
+            services.AddSingleton<IConnectionMultiplexer>(cm);
+
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Application", Version = "v1" });
@@ -43,8 +61,6 @@ namespace Application
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Application v1"));
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

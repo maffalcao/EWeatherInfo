@@ -1,0 +1,9 @@
+version: '3.4'
+services:
+  cachedb:
+    image: redis:alpine  
+  measurements.api:
+    image: ${DOCKER_REGISTRY-}measurements.api
+    build:
+      context: .
+      dockerfile: Application/Dockerfile  

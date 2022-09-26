@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace Domain.Entities
 {
-    public class SensorType
+    public class SensorTypeEntity
     {
         public string Name { get; private set; }
 
         public IList<MeasurementEntity> Measurements { get; private set; }
-        public SensorType(string name)
+        public SensorTypeEntity(string name)
         {
             Name = name;
             Measurements = new List<MeasurementEntity>();

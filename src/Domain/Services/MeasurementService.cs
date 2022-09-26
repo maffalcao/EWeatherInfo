@@ -9,19 +9,36 @@ namespace Domain.Services
     public class MeasurementService : IMeasurementService
     {
         private readonly IMeasurementRepository _measurementRepository;
+        private readonly IDeviceRepository _deviceRepository;
 
-        public MeasurementService(IMeasurementRepository measurementRepository)
+        public MeasurementService(IMeasurementRepository measurementRepository, IDeviceRepository deviceRepository)
         {
             _measurementRepository = measurementRepository;
+            _deviceRepository = deviceRepository;
         }
-        public async Task<IList<MeasurementEntity>> Get(string deviceId, string sensorType, DateTime date)
+        public async Task<IList<MeasurementEntity>> GetMeasurements(string deviceId, string sensorType, DateTime date)
         {
-            return await _measurementRepository.GetDataAsync(deviceId, sensorType, date);
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
+
+            if (device == null)
+                throw new Exception("Device not found");
+            else if (!device.HasSensorType(sensorType))
+                throw new Exception("Device does not have this sensorType");
+
+            return await _measurementRepository.GetMeasurementsAsync(deviceId, sensorType, date);
+
         }
 
-        public async Task<IList<SensorType>> Get(string deviceId, DateTime date)
+        public async Task<IList<SensorTypeEntity>> GetMeasurements(string deviceId, DateTime date)
         {
-            throw new NotImplementedException();
+            var device = _deviceRepository.GetByIdAsync(deviceId);
+
+            if (device == null)
+                throw new Exception("Device not found");
+
+            return new List<SensorTypeEntity>();
+
+
         }
     }
 }
