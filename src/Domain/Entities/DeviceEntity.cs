@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,7 +7,7 @@ namespace Domain.Entities
     public class DeviceEntity
     {
         public string Id { get; private set; }
-        public IList<SensorTypeEntity> SensorTypes { get; private set; }
+        public List<SensorTypeEntity> SensorTypes { get; private set; }
 
         public DeviceEntity(string id)
         {
@@ -16,19 +17,21 @@ namespace Domain.Entities
 
         public void AddSensorType(string sensorTypeName)
         {
-
-            if (!SensorTypes.Any(s => s.Name.Equals(sensorTypeName)))
-            {
+            if (!SensorTypes.Any(s => s.Name.Equals(sensorTypeName, StringComparison.OrdinalIgnoreCase)))
                 SensorTypes.Add(new SensorTypeEntity(sensorTypeName));
-            }
-
         }
 
-        public bool HasSensorType(string sensorTypeName) => SensorTypes.Any(_ => _.Name.Equals(sensorTypeName));
+        public bool HasSensorType(string sensorTypeName) =>
+            SensorTypes
+                .Any(_ => _.Name.Equals(sensorTypeName, StringComparison.OrdinalIgnoreCase));
 
-        public bool IsNew() => !SensorTypes.Any();
+        public List<SensorTypeEntity> GetSensorTypes(string sensorTypeName) =>
+            SensorTypes
+                .Where(_ => sensorTypeName == null || _.Name.Equals(sensorTypeName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-        public SensorTypeEntity GetSensorType(string sensorTypeName) => SensorTypes.SingleOrDefault(_ => _.Name.Equals(sensorTypeName));
+        public bool IsNew() =>
+            !SensorTypes.Any();
 
     }
 }

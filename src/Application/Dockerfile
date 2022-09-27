@@ -10,6 +10,7 @@ WORKDIR /
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Infra/Infra.csproj", "Infra/"]
 COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["CrossCutting/CrossCutting.csproj", "CrossCutting/"]
 RUN dotnet restore "Application/Application.csproj"
 
 COPY . .

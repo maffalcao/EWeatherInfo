@@ -4,22 +4,29 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Infra.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Infra.Helpers
 {
     public class IO : IIO
     {
+        private readonly ILogger<IO> _logger;
+        public IO(ILogger<IO> logger) =>
+            _logger = logger;
         public void DownloadFile(string url, string destinationPath)
         {
-            try
+            const int BUFFER_SIZE = 64 * 1024;
+            var uri = new Uri(url);
+            var destinationFilePath = Path.Combine(destinationPath, uri.Segments.LastOrDefault());
+
+            CreateDirectory(destinationFilePath);
+
+            using (var outputFileStream = File.Create(destinationFilePath, BUFFER_SIZE))
             {
-                const int BUFFER_SIZE = 16 * 1024;
-                var uri = new Uri(url);
-                var destinationFilePath = Path.Combine(destinationPath, uri.Segments.LastOrDefault());
+                _logger.LogInformation($"I/O: Start download from {url} to {destinationPath}");
 
-                CreateDirectory(destinationPath);
-
-                using (var outputFileStream = File.Create(destinationFilePath, BUFFER_SIZE))
+                // TODO: download file chunks in parallel
+                try
                 {
                     var req = WebRequest.Create(new Uri(url));
                     using (var response = req.GetResponse())
@@ -37,11 +44,11 @@ namespace Infra.Helpers
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                var bla = 1;
-
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    File.Delete(destinationFilePath);
+                }
             }
 
         }
@@ -54,7 +61,16 @@ namespace Infra.Helpers
         public void UnzipFile(string filePath, string destionationFolder)
         {
             CreateDirectory(destionationFolder);
-            System.IO.Compression.ZipFile.ExtractToDirectory(filePath, destionationFolder);
+
+            try
+            {
+                _logger.LogInformation($"I/O: Start extract from {filePath} to {destionationFolder}");
+                System.IO.Compression.ZipFile.ExtractToDirectory(filePath, destionationFolder);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
 
         public async Task<bool> IsUrlAvailable(string url)
@@ -69,7 +85,7 @@ namespace Infra.Helpers
             }
             catch
             {
-
+                // it means that url does not exists  
             }
 
             return isUrlAvailable;
@@ -79,7 +95,21 @@ namespace Infra.Helpers
         private void CreateDirectory(string destinationPath)
         {
             var directoryName = System.IO.Path.GetDirectoryName(destinationPath);
-            System.IO.Directory.CreateDirectory(directoryName);
+
+            if (!Directory.Exists(directoryName))
+            {
+                try
+                {
+
+                    _logger.LogInformation($"I/O: Start create directory {destinationPath}");
+                    System.IO.Directory.CreateDirectory(directoryName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                    throw ex;
+                }
+            }
         }
     }
 }

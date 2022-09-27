@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Infra.Interfaces;
 using Newtonsoft.Json;
@@ -21,11 +22,18 @@ namespace Infra.Clients
             );
         }
 
-        public async Task SetDataAsync<T>(string key, T content) where T : class
+        public async Task SetDataAsync<T>(string key, T content, int? minutesToExpire = null) where T : class
         {
+            var timeSpam = minutesToExpire == null ?
+                (TimeSpan?)null :
+                TimeSpan.FromMinutes((int)minutesToExpire);
+
+            content = content ?? Activator.CreateInstance<T>();
+
             await _database.StringSetAsync(
                 key,
-                JsonConvert.SerializeObject(content)
+                JsonConvert.SerializeObject(content),
+                timeSpam
             );
         }
     }

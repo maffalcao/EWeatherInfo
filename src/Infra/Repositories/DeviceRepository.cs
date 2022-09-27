@@ -2,29 +2,39 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CrossCutting.Settings;
 using Domain.Entities;
 using Domain.Interfaces;
 using Infra.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace Infra.Repositories
 {
     public class DeviceRepository : BaseRepository<DeviceEntity>, IDeviceRepository
     {
-        public DeviceRepository(IRedisClient redis, IIO io) : base(redis, io)
-        {
 
-        }
+        private const string REDIS_KEY = "weatherinfo-devices";
+        private const string METADATA_FILE_NAME = "metadata.csv";
+        public DeviceRepository(IRedisClient redis, IIO io, IOptions<AppSettings> settings) : base(redis, io, settings) { }
 
         public async Task<DeviceEntity> GetByIdAsync(string deviceId)
         {
-            var devices = await GetDataFromUrlAsync();
+            var devices = await _redis.GetDataAsync<List<DeviceEntity>>(REDIS_KEY);
+
+            if (devices == null)
+            {
+                devices = await GetDataFromUrlAsync();
+
+                await _redis.SetDataAsync<List<DeviceEntity>>(REDIS_KEY, devices, _settings.DevicesMinutesToExpireInRedis);
+            }
+
             return devices.SingleOrDefault(_ => _.Id == deviceId);
         }
 
-        protected override IList<DeviceEntity> GetDataFromFile()
+        protected override List<DeviceEntity> GetDataFromFile()
         {
             List<DeviceEntity> devices = null;
-            var filePath = $"{_folderBase}/metadata.csv";
+            var filePath = Path.Combine(_folderBase, METADATA_FILE_NAME);
 
             if (_io.FileExists(filePath))
             {
@@ -37,6 +47,10 @@ namespace Infra.Repositories
                     while ((currentLine = sr.ReadLine()) != null)
                     {
                         var token = currentLine.Split(";");
+
+                        if (token.Count() != NUMBER_OF_COLUMNS_IN_CSV)
+                            ThrowFormatException(filePath, currentLine);
+
                         var deviceId = token[0];
                         var sensorType = token[1];
 
@@ -53,19 +67,19 @@ namespace Infra.Repositories
             return devices;
         }
 
-        protected override async Task<IList<DeviceEntity>> GetDataFromUrlAsync()
+        protected override async Task<List<DeviceEntity>> GetDataFromUrlAsync()
         {
             List<DeviceEntity> devices = null;
             var url = $"{_urlBase}/metadata.csv";
 
             if (await _io.IsUrlAvailable(url))
             {
-
                 _io.DownloadFile(url, _folderBase);
                 devices = GetDataFromFile().ToList();
             }
 
             return devices;
         }
+
     }
 }

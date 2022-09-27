@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Domain.Entities
@@ -7,13 +6,14 @@ namespace Domain.Entities
     {
         public string Name { get; private set; }
 
-        public IList<MeasurementEntity> Measurements { get; private set; }
+        public List<MeasurementEntity> Measurements { get; private set; }
         public SensorTypeEntity(string name)
         {
             Name = name;
             Measurements = new List<MeasurementEntity>();
         }
 
-        public void AddMeasurement(DateTime date, decimal value) => Measurements.Add(new MeasurementEntity(date, value));
+        public void AddMeasurements(List<MeasurementEntity> measurements) =>
+            Measurements.AddRange(measurements);
     }
 }
