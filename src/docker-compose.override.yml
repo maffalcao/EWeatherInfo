@@ -1,0 +1,19 @@
+version: '3.4'
+services:
+
+  cachedb:
+    container_name: cachedb
+    restart: always    
+    ports:
+        - "6379:6379"  
+
+  measurements.api:
+    container_name: measurements.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=cachedb:6379"      
+    depends_on:
+      - cachedb      
+    ports:
+      - "8001:80"
+  
