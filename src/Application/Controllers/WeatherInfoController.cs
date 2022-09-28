@@ -22,7 +22,7 @@ namespace Application.Controllers
 
         [HttpGet]
         public async Task<List<SensorTypeEntity>> GetMeasurements([FromQuery] GetMeasurementsParamsDto dto) =>
-            await _service.GetMeasurements(dto.DeviceId, (DateTime)dto.Date, dto.SensorType);
+            await _service.GetMeasurementsAsync(dto.DeviceId, (DateTime)dto.Date, dto.SensorType);
 
     }
 }

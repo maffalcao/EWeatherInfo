@@ -7,6 +7,6 @@ namespace Domain.Interfaces
 {
     public interface IMeasurementService
     {
-        Task<List<SensorTypeEntity>> GetMeasurements(string deviceId, DateTime date, string sensorTypeName = null);
+        Task<List<SensorTypeEntity>> GetMeasurementsAsync(string deviceId, DateTime date, string sensorTypeName = null);
     }
 }

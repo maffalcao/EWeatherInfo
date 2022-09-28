@@ -18,7 +18,7 @@ namespace Domain.Services
             _measurementRepository = measurementRepository;
             _deviceRepository = deviceRepository;
         }
-        public async Task<List<SensorTypeEntity>> GetMeasurements(string deviceId, DateTime date, string sensorTypeName = null)
+        public async Task<List<SensorTypeEntity>> GetMeasurementsAsync(string deviceId, DateTime date, string sensorTypeName = null)
         {
             var device = await _deviceRepository.GetByIdAsync(deviceId);
 
