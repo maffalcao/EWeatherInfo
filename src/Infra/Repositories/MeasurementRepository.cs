@@ -116,12 +116,17 @@ namespace Infra.Repositories
             downloaded again and unzipped. Otherwise, nothing is done and an empty result is returned.
 
             */
+
+            var historyFilePathExists = _io.FileExists(HistoryFilePath);
+            var historyUrlExists = await _io.IsUrlAvailable(HistoryUrlPath);
+            var dontHasPastMaxDaysToAFileBecompressed = (DateTime.Now - date).Days < _settings.MaxDaysFromNowToAFileBeCompressed;
+
             if (
                 (
-                    !_io.FileExists(HistoryFilePath) ||
-                    (DateTime.Now - date).Days < _settings.MaxDaysFromNowToAFileBeCompressed
+                    !historyFilePathExists ||
+                    dontHasPastMaxDaysToAFileBecompressed
                 ) &&
-                await _io.IsUrlAvailable(HistoryUrlPath))
+                historyUrlExists)
             {
                 // if we are here, it means it will take a long time to complete download & unpack tasks
                 _io.DownloadFile(HistoryUrlPath, DestionationFolder);
